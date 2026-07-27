@@ -71,8 +71,11 @@ body{font-family:'Gowun Dodum',sans-serif;background:var(--sand);color:var(--ink
 .checkrow input{width:19px;height:19px;margin-top:2px;accent-color:var(--clay);flex:none}
 
 .fillrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-size:15px;line-height:2.2}
-.fillrow input{flex:1 1 90px;min-width:90px;max-width:100%;border:none;border-bottom:2px solid var(--line);border-radius:0;background:transparent;padding:4px 4px}
-.fillrow input:focus{border-bottom-color:var(--clay)}
+.fillrow input,
+.card .fillrow input[type=text]{flex:1 1 90px;min-width:90px;max-width:100%;width:auto;border:none;border-bottom:2px solid var(--sage);border-radius:0;background:transparent;padding:3px 4px;font-size:inherit;color:var(--clay-deep);font-weight:700;text-align:center}
+.card .fillrow input[type=text]:focus,
+.fillrow input:focus{outline:none;border-bottom-color:var(--clay)}
+.fbreak{flex:1 0 100%;height:0}
 
 .philo{background:linear-gradient(135deg,var(--clay),var(--clay-deep));color:#fff;border-radius:16px;padding:20px 18px;text-align:center;margin-bottom:16px}
 .philo .big{font-family:'Jua',sans-serif;font-size:19px;line-height:1.6}
@@ -119,7 +122,8 @@ button.act:active{transform:scale(.96)}
 #sumcard .sc-row .v{font-size:15px;white-space:pre-wrap;word-break:break-word}
 #sumcard .sc-foot{text-align:center;font-size:12px;color:var(--mute);margin-top:4px}
 
-footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line-height:1.8}
+footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line-height:1.85}
+footer .fnote{display:block;margin-top:7px;font-size:11.5px}
 
 /* ---------- greeting template ---------- */
 .greet{background:#F4F8FE;border-radius:12px;padding:13px 14px;font-size:15px;line-height:2.1}
@@ -302,15 +306,15 @@ footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line
 </head>
 <body>
 <div class="hero">
-  <div class="kicker">2026 횡성 청소년 도슨트 양성 과정 · 전시 연계 프로젝트</div>
+  <div class="kicker">2026 횡성 청소년 도슨트 양성 과정 ·<br>전시 연계 프로젝트</div>
   <h1>내가 그린 횡성,<br>네가 전하는 이야기</h1>
-  <div class="slogan">작품은 하나, 이야기는 무한대 — 말하기는 듣는 사람에게 주는 <b>선물</b>입니다</div>
+  <div class="slogan">작품은 하나, 이야기는 무한대<br><b>듣는 사람을 위한 말하기</b></div>
 </div>
 
 <div class="wrap">
   <div class="namebar">
     <div class="field"><label>내 이름</label><input type="text" data-k="myname" placeholder="이름을 적어요"></div>
-    <div class="field"><label>내 짝꿍 (나는 짝꿍 작품의 도슨트!)</label><input type="text" data-k="pairname" placeholder="2회차에 정해져요"></div>
+    <div class="field"><label>내 짝꿍</label><input type="text" data-k="pairname" placeholder="2회차에 정해져요"></div>
   </div>
 
   <div id="warn">이 브라우저에서는 자동 저장이 되지 않아요. 화면을 닫으면 적은 내용이 사라질 수 있으니, 수업이 끝나면 꼭 <b>이미지로 저장</b> 버튼을 눌러 주세요.</div>
@@ -318,7 +322,7 @@ footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line
   <div class="stones" id="stones"></div>
 
   <div class="warmbar">
-    <div class="wb-txt">말하기 전에는 <b>준비운동</b>부터! 1분 30초면 목소리가 달라져요</div>
+    <div class="wb-txt">말하기 전에는 <b>준비운동</b>부터!<br>1분 30초면 목소리가 달라져요</div>
     <button onclick="openWarm()">시작하기</button>
   </div>
 
@@ -334,7 +338,7 @@ footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line
 
     <div class="card">
       <h3>철학 한 줄, 내 손으로</h3>
-      <div class="fillrow">말하기는 듣는 사람에게 주는 <input type="text" data-k="s1_gift" placeholder="        " style="max-width:110px"> 입니다.</div>
+      <div class="fillrow">말하기는 듣는 사람에게 주는<div class="fbreak"></div><input type="text" data-k="s1_gift" placeholder="        "> 입니다.</div>
     </div>
 
     <div class="card">
@@ -393,7 +397,7 @@ footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line
 
     <div class="card">
       <h3>작품 한 줄 소개</h3>
-      <div class="fillrow">이 작품은 <input type="text" data-k="s2_artist" placeholder="작가 이름" style="max-width:120px"> 작가의 작품인데, <input type="text" data-k="s2_what" placeholder="무엇"> 을(를) 그린 것이라고 해요.</div>
+      <div class="fillrow">이 작품은 <input type="text" data-k="s2_artist" placeholder="작가 이름"> 작가의 작품인데,<div class="fbreak"></div><input type="text" data-k="s2_what" placeholder="무엇"> 을(를) 그린 것이라고 해요.</div>
       <div class="checkrow" style="margin-top:12px"><input type="checkbox" data-k="s2_ok"><span><b>작가의 확인</b> — "이렇게 소개해도 돼?" 하고 짝꿍에게 허락을 받았어요</span></div>
     </div>
   </section>
@@ -621,8 +625,9 @@ footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line
 
   <footer>
     「내가 그린 횡성, 네가 전하는 이야기」<br>
-    2026 횡성 청소년 도슨트 양성 과정 및 전시 연계 프로젝트 · 디지털 워크북<br>
-    적은 내용은 이 기기·이 브라우저에만 저장됩니다 · 스피치 고은영
+    2026 횡성 청소년 도슨트 양성 과정 및<br>
+    전시 연계 프로젝트 · 디지털 워크북<br>
+    <span class="fnote">적은 내용은 이 기기·이 브라우저에만 저장됩니다<br>스피치 고은영</span>
     <div style="margin-top:10px">
       <button class="act b-ghost" style="font-size:12px;padding:7px 14px" onclick="printAll()">전체 인쇄</button>
       <button class="act b-ghost" style="font-size:12px;padding:7px 14px" onclick="resetAll()">처음부터 다시 쓰기</button>
