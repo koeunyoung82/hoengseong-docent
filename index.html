@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내가 그린 횡성, 네가 전하는 이야기 — 디지털 워크북</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --clay:#1F4FA8; --clay-deep:#163B80; --sand:#EFF4FB; --paper:#FFFFFF;
+  --ink:#26334D; --mute:#7A879E; --sage:#8FB6E8; --sage-deep:#3E6CB8;
+  --sun:#F7C325; --line:#D7E1F0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Gowun Dodum',sans-serif;background:var(--sand);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px 80px}
+
+/* ---------- hero ---------- */
+.hero{background:var(--clay);color:#fff;border-radius:0 0 28px 28px;padding:34px 22px 28px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08);top:-70px;right:-50px}
+.hero::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.06);bottom:-50px;left:-30px}
+.hero .kicker{font-size:13px;letter-spacing:3px;color:#CFE0F8;margin-bottom:6px}
+.hero h1{font-family:'Jua',sans-serif;font-size:29px;font-weight:400;letter-spacing:.5px;line-height:1.3}
+.hero .slogan{margin-top:10px;font-size:15px;color:#E7EEFA}
+.hero .slogan b{color:var(--sun);font-weight:400}
+
+/* ---------- name bar ---------- */
+.namebar{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;margin-top:-14px;position:relative;z-index:2;padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;box-shadow:0 4px 14px rgba(66,53,45,.07)}
+.namebar label{font-size:13px;color:var(--mute);display:block;margin-bottom:2px}
+.namebar .field{flex:1;min-width:130px}
+.namebar input{width:100%;border:none;border-bottom:2px solid var(--line);background:transparent;font-family:inherit;font-size:16px;padding:4px 2px;color:var(--ink)}
+.namebar input:focus{outline:none;border-bottom-color:var(--clay)}
+
+/* ---------- stepping-stone nav ---------- */
+.stones{display:flex;justify-content:space-between;align-items:flex-start;margin:26px 2px 8px;position:relative}
+.stones::before{content:"";position:absolute;top:22px;left:8%;right:8%;height:3px;background:var(--line);border-radius:2px;z-index:0}
+.stone{position:relative;z-index:1;background:none;border:none;cursor:pointer;font-family:inherit;text-align:center;width:16%;padding:0}
+.stone .dot{width:44px;height:44px;border-radius:50% 50% 46% 54%/54% 46% 54% 46%;background:var(--paper);border:2.5px solid var(--line);margin:0 auto;display:flex;align-items:center;justify-content:center;font-family:'Jua',sans-serif;font-size:17px;color:var(--mute);transition:all .25s}
+.stone .lb{font-size:11px;color:var(--mute);margin-top:5px;display:block;line-height:1.3}
+.stone.done .dot{background:var(--sage);border-color:var(--sage-deep);color:#fff}
+.stone.active .dot{background:var(--clay);border-color:var(--clay-deep);color:#fff;transform:scale(1.12)}
+.stone.active .lb{color:var(--clay);font-weight:700}
+
+/* ---------- session ---------- */
+.session{display:none;animation:fadein .3s ease}
+.session.show{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.session{animation:none}}
+
+.s-head{margin:22px 4px 14px}
+.s-head .no{font-family:'Jua',sans-serif;color:var(--clay);font-size:15px;letter-spacing:2px}
+.s-head h2{font-family:'Jua',sans-serif;font-size:25px;font-weight:400;margin-top:2px}
+
+.qbox{background:var(--paper);border-left:5px solid var(--sun);border-radius:12px;padding:14px 16px;margin-bottom:18px;font-size:15px}
+.qbox .qtag{font-size:12px;color:var(--sun);letter-spacing:2px;display:block;margin-bottom:4px;font-weight:700}
+
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:18px 16px;margin-bottom:16px}
+.card h3{font-family:'Jua',sans-serif;font-size:17px;font-weight:400;color:var(--clay-deep);margin-bottom:4px}
+.card .desc{font-size:13.5px;color:var(--mute);margin-bottom:12px}
+.card label{display:block;font-size:13.5px;color:var(--sage-deep);font-weight:700;margin:12px 0 4px}
+.card label:first-of-type{margin-top:0}
+.card input[type=text], .card textarea, .card select{width:100%;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-family:inherit;font-size:15px;padding:10px 12px;color:var(--ink)}
+.card textarea{min-height:88px;resize:vertical;line-height:1.6}
+.card textarea.tall{min-height:150px}
+.card input:focus,.card textarea:focus,.card select:focus{outline:none;border-color:var(--clay)}
+.hintline{font-size:12.5px;color:var(--mute);margin-top:4px}
+
+.checkrow{display:flex;align-items:flex-start;gap:9px;padding:8px 2px;font-size:14.5px}
+.checkrow input{width:19px;height:19px;margin-top:2px;accent-color:var(--clay);flex:none}
+
+.fillrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;font-size:15px}
+.fillrow input{flex:1;min-width:110px;border:none;border-bottom:2px solid var(--line);border-radius:0;background:transparent;padding:4px 4px}
+.fillrow input:focus{border-bottom-color:var(--clay)}
+
+.philo{background:linear-gradient(135deg,var(--clay),var(--clay-deep));color:#fff;border-radius:16px;padding:20px 18px;text-align:center;margin-bottom:16px}
+.philo .big{font-family:'Jua',sans-serif;font-size:19px;line-height:1.6}
+.philo .small{font-size:13px;color:#CFE0F8;margin-top:6px}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 0}
+button.act{font-family:'Jua',sans-serif;font-size:15px;border:none;border-radius:24px;padding:11px 20px;cursor:pointer;transition:transform .15s}
+button.act:active{transform:scale(.96)}
+.b-clay{background:var(--clay);color:#fff}
+.b-ghost{background:var(--paper);color:var(--clay);border:2px solid var(--clay)!important}
+.b-sage{background:var(--sage-deep);color:#fff}
+
+.actbar{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:11px 13px;margin-top:16px}
+.actbar .ab-t{font-size:13px;color:var(--mute);margin-bottom:8px}
+.actbar .ab-t b{color:var(--clay)}
+.actbar .ab-b{display:flex;gap:7px}
+.actbar .ab-h{font-size:11.5px;color:var(--mute);margin-top:8px;line-height:1.45}
+.actbar .ab-h b{color:var(--sage-deep)}
+.actbar button{flex:1;font-family:'Jua',sans-serif;font-size:14px;border:1.5px solid var(--sage);background:#F4F8FE;color:var(--sage-deep);border-radius:20px;padding:9px 4px;cursor:pointer}
+.actbar button:active{background:var(--sage);color:#fff}
+.actbar button:disabled{opacity:.55}
+.pagenav{display:flex;justify-content:space-between;margin-top:6px}
+
+/* ---------- save toast / warn ---------- */
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--ink);color:#fff;font-size:13.5px;padding:9px 20px;border-radius:20px;transition:transform .3s;z-index:60}
+#toast.on{transform:translateX(-50%) translateY(0)}
+#warn{display:none;background:#FFF6DA;border:1.5px solid var(--sun);color:#7A5C00;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:14px}
+
+/* ---------- capture modal ---------- */
+#modal{display:none;position:fixed;inset:0;background:rgba(40,30,25,.55);z-index:80;overflow:auto;padding:24px 14px}
+#modal.on{display:block}
+.modal-in{max-width:520px;margin:0 auto;background:var(--paper);border-radius:18px;padding:18px}
+.modal-in h3{font-family:'Jua',sans-serif;font-weight:400;color:var(--clay-deep);margin-bottom:8px}
+.modal-in .guide{font-size:13.5px;color:var(--mute);margin-bottom:10px}
+#shot{width:100%;border-radius:12px;border:1px solid var(--line)}
+
+/* ---------- summary card (render target) ---------- */
+#sumcard{position:fixed;left:-9999px;top:0;width:560px;background:var(--sand);padding:26px;font-family:'Gowun Dodum',sans-serif;color:var(--ink)}
+#sumcard .sc-hero{background:var(--clay);color:#fff;border-radius:16px;padding:20px;text-align:center;margin-bottom:14px}
+#sumcard .sc-hero .t{font-family:'Jua',sans-serif;font-size:24px}
+#sumcard .sc-hero .s{font-size:13px;color:#CFE0F8;margin-top:4px}
+#sumcard .sc-row{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+#sumcard .sc-row .k{font-size:12px;color:var(--sage-deep);font-weight:700;letter-spacing:1px;margin-bottom:3px}
+#sumcard .sc-row .v{font-size:15px;white-space:pre-wrap;word-break:break-word}
+#sumcard .sc-foot{text-align:center;font-size:12px;color:var(--mute);margin-top:4px}
+
+footer{margin-top:36px;text-align:center;font-size:12.5px;color:var(--mute);line-height:1.8}
+
+/* ---------- greeting template ---------- */
+.greet{background:#F4F8FE;border-radius:12px;padding:13px 14px;font-size:15px;line-height:2.1}
+.greet p{margin:0}
+.greet input{border:none;border-bottom:2px solid var(--sage);background:transparent;font-family:inherit;font-size:15px;color:var(--clay-deep);font-weight:700;padding:1px 4px;width:118px;text-align:center}
+.greet input:focus{outline:none;border-bottom-color:var(--clay)}
+
+/* ---------- style chips + examples ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.chips button{font-family:'Jua',sans-serif;font-size:14px;border:1.5px solid var(--line);background:#fff;color:var(--mute);border-radius:20px;padding:8px 15px;cursor:pointer;transition:all .15s}
+.chips button.on{background:var(--clay);border-color:var(--clay);color:#fff}
+.exwrap{background:#F4F8FE;border-radius:12px;padding:13px 14px;margin-bottom:6px;font-size:14.5px}
+.exwrap .exh{font-size:13px;color:var(--sage-deep);font-weight:700;margin-bottom:7px;line-height:1.5}
+.exwrap .exi{background:#fff;border-left:3px solid var(--sun);border-radius:7px;padding:8px 11px;margin-bottom:6px;line-height:1.55}
+.exwrap .exf{font-size:13.5px;color:var(--clay-deep);background:#FFF6DA;border-radius:7px;padding:8px 11px;margin-top:8px;line-height:1.55}
+.exwrap .exempty{color:var(--mute);font-size:13.5px}
+.card label .tag{font-size:11.5px;color:var(--mute);font-weight:400;margin-left:5px}
+
+/* ---------- length meter ---------- */
+.meter{background:#F4F8FE;border-radius:12px;padding:13px 14px}
+.meter .mnum{font-family:'Jua',sans-serif;font-size:19px;color:var(--clay-deep)}
+.meter .mnum b{color:var(--clay);font-size:25px}
+.meter .mtrack{position:relative;height:14px;background:#E1E9F5;border-radius:8px;margin:11px 0 6px;overflow:hidden}
+.meter .mzone{position:absolute;top:0;bottom:0;left:55.5%;width:22.3%;background:rgba(110,180,120,.35)}
+.meter .mfill{position:absolute;top:0;bottom:0;left:0;width:0%;background:var(--sage-deep);border-radius:8px;transition:width .3s}
+.meter .mfill.ok{background:#3E9E5B}
+.meter .mfill.over{background:var(--sun)}
+.meter .mtip{font-size:13px;color:var(--mute);line-height:1.5}
+.meter .mtip b{color:var(--clay-deep)}
+.meter .mscale{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-bottom:8px}
+
+/* ---------- warm-up: bar, modal, breathing ---------- */
+.warmbar{display:flex;align-items:center;gap:10px;background:var(--paper);border:1.5px solid var(--sage);border-radius:14px;padding:11px 14px;margin-top:14px}
+.warmbar .wb-txt{flex:1;font-size:13.5px;color:var(--sage-deep);line-height:1.4}
+.warmbar .wb-txt b{color:var(--clay)}
+.warmbar button{font-family:'Jua',sans-serif;font-size:14px;border:none;border-radius:20px;padding:9px 16px;background:var(--sage-deep);color:#fff;cursor:pointer;flex:none}
+
+#wmodal{display:none;position:fixed;inset:0;background:linear-gradient(160deg,#1F4FA8,#0E2A5C);z-index:90;overflow:auto}
+#wmodal.on{display:flex;align-items:center;justify-content:center;padding:20px 16px}
+.w-in{width:100%;max-width:420px;text-align:center;color:#fff}
+.w-step{font-size:13px;color:#CFE0F8;letter-spacing:2px}
+.w-title{font-family:'Jua',sans-serif;font-size:27px;margin:6px 0 4px;line-height:1.35}
+.w-sub{font-size:14.5px;color:#CFE0F8;min-height:42px;line-height:1.5}
+.w-stage{height:210px;display:flex;align-items:center;justify-content:center;position:relative;margin:6px 0}
+.breath{width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.16);border:3px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-family:'Jua',sans-serif;font-size:38px;color:#fff;transition:transform 1s linear,background .4s}
+.breath.in{transform:scale(1.55);background:rgba(247,195,37,.35);transition-duration:5s}
+.breath.out{transform:scale(.72);transition-duration:10s}
+.breath.ha{transform:scale(.55);background:rgba(247,195,37,.6);transition-duration:.4s}
+.breath.big{font-size:52px}
+.w-count{font-family:'Jua',sans-serif;font-size:15px;color:var(--sun);height:22px}
+.w-bar{height:7px;background:rgba(255,255,255,.2);border-radius:5px;margin:12px 20px 16px;overflow:hidden}
+.w-fill{height:100%;width:0%;background:var(--sun);border-radius:5px;transition:width .3s linear}
+.w-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.w-btns button{font-family:'Jua',sans-serif;font-size:14.5px;border:none;border-radius:22px;padding:11px 22px;cursor:pointer}
+.wb-main{background:var(--sun);color:#163B80}
+.wb-sub{background:rgba(255,255,255,.16);color:#fff}
+.w-ments{background:rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-top:4px;text-align:left}
+.w-ments div{font-size:15px;color:#fff;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.13);line-height:1.5}
+.w-ments div:last-child{border:none}
+.w-ments .mt{font-size:12px;color:var(--sun);letter-spacing:1px;padding-bottom:2px;border:none}
+
+.markrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.markrow button{font-family:inherit;font-size:13.5px;border:1.5px solid var(--sage);background:#F4F8FE;color:var(--sage-deep);border-radius:18px;padding:7px 14px;cursor:pointer}
+.markrow button:active{background:var(--sage);color:#fff}
+.mentlist{list-style:none;margin-top:4px}
+.mentlist li{background:#F4F8FE;border-left:4px solid var(--sage);border-radius:8px;padding:9px 12px;margin-bottom:7px;font-size:14.5px}
+.wsheet{margin-top:6px}
+.wsheet .wg{font-family:'Jua',sans-serif;font-size:15.5px;color:var(--clay);margin:16px 0 6px;padding-bottom:4px;border-bottom:1.5px solid var(--line)}
+.wsheet .wg:first-child{margin-top:4px}
+.wsheet .wg span{font-family:'Gowun Dodum',sans-serif;font-size:12.5px;color:var(--mute)}
+.wsheet p b{color:var(--clay-deep)}
+.wsheet p{font-size:14.5px;line-height:1.6;padding:4px 0 4px 10px;border-left:3px solid var(--sage);margin-bottom:5px;color:var(--ink)}
+.wsheet .wv{background:#F4F8FE;border-left-color:var(--sun);font-family:'Jua',sans-serif;font-size:14px;line-height:1.9}
+.wsheet .wnote{background:#FFF6DA;border-radius:8px;padding:9px 11px;font-size:13px;color:#7A5C00;margin-top:8px;line-height:1.55}
+.steplist{list-style:none;counter-reset:st}
+.steplist li{counter-increment:st;position:relative;padding:9px 0 9px 34px;font-size:14.5px;border-bottom:1px dashed var(--line)}
+.steplist li:last-child{border:none}
+.steplist li::before{content:counter(st);position:absolute;left:0;top:9px;width:23px;height:23px;border-radius:50%;background:var(--clay);color:#fff;font-family:'Jua',sans-serif;font-size:13px;display:flex;align-items:center;justify-content:center}
+.steplist b{color:var(--clay-deep)}
+
+.w-say{font-size:15px;color:#fff;line-height:1.55}
+.w-note{font-size:12.5px;color:var(--sun);margin-top:7px;line-height:1.5}
+.breath.small{font-size:19px;letter-spacing:1px}
+
+.wm-h{font-family:'Jua',sans-serif;font-size:26px;margin-bottom:6px}
+.wm-s{font-size:13.5px;color:#CFE0F8;line-height:1.55;margin-bottom:16px}
+.wm-grid{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.wm-card{position:relative;display:block;width:100%;text-align:left;background:rgba(255,255,255,.11);border:1.5px solid rgba(255,255,255,.22);border-radius:14px;padding:12px 14px 12px 46px;cursor:pointer;font-family:inherit;color:#fff;transition:background .15s}
+.wm-card:active{background:rgba(255,255,255,.2)}
+.wm-card.ok{border-color:var(--sun);background:rgba(247,195,37,.14)}
+.wm-n{position:absolute;left:12px;top:13px;width:24px;height:24px;border-radius:50%;background:var(--sun);color:#163B80;font-family:'Jua',sans-serif;font-size:13px;display:flex;align-items:center;justify-content:center}
+.wm-nm{display:block;font-family:'Jua',sans-serif;font-size:17px;line-height:1.2}
+.wm-tp{display:block;font-size:12.5px;color:#CFE0F8;margin-top:3px}
+.wm-tm{position:absolute;right:14px;top:15px;font-size:12px;color:var(--sun)}
+
+/* ---------- 1-minute stopwatch ---------- */
+.timerbox{background:linear-gradient(135deg,#1F4FA8,#163B80);border-radius:16px;padding:18px 16px;margin-bottom:16px;text-align:center;color:#fff}
+.timerbox .t-label{font-size:13px;color:#CFE0F8;letter-spacing:2px;margin-bottom:6px}
+.timerbox .t-time{font-family:'Jua',sans-serif;font-size:46px;line-height:1;letter-spacing:2px;font-variant-numeric:tabular-nums}
+.timerbox.over .t-time{color:var(--sun)}
+.timerbox .t-bar{height:8px;background:rgba(255,255,255,.2);border-radius:5px;margin:14px 8px 4px;overflow:hidden;position:relative}
+.timerbox .t-fill{height:100%;width:0%;background:var(--sun);border-radius:5px;transition:width .2s linear}
+.timerbox .t-goal{font-size:11.5px;color:#CFE0F8;margin-bottom:12px}
+.timerbox .t-btns{display:flex;gap:8px;justify-content:center}
+.timerbox button{font-family:'Jua',sans-serif;font-size:14px;border:none;border-radius:20px;padding:9px 20px;cursor:pointer}
+.timerbox .tb-main{background:var(--sun);color:#163B80}
+.timerbox .tb-sub{background:rgba(255,255,255,.16);color:#fff}
+.timerbox .t-msg{font-size:13px;color:#CFE0F8;margin-top:10px;min-height:18px}
+
+/* ---------- print: paper worksheet mode ---------- */
+@media print{
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .stones,.pagenav,.actbar,.btnrow,.hintline,#warn,#toast,#modal,#wmodal,.warmbar,footer button,.timerbox{display:none!important}
+  .session{display:block!important;animation:none;page-break-before:always}
+  .session[data-s="1"]{page-break-before:avoid}
+  body.p-one .session{display:none!important}
+  body.p-one .session.show{display:block!important;page-break-before:avoid}
+  .hero{border-radius:0;padding:22px}
+  .namebar{box-shadow:none}
+  .card,.qbox,.namebar{break-inside:avoid}
+  .card textarea{overflow:hidden}
+  .wrap{max-width:100%;padding:0 4px 10px}
+}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="kicker">2026 횡성 청소년 도슨트 양성 과정 · 전시 연계 프로젝트</div>
+  <h1>내가 그린 횡성,<br>네가 전하는 이야기</h1>
+  <div class="slogan">작품은 하나, 이야기는 무한대 — 말하기는 듣는 사람에게 주는 <b>선물</b>입니다</div>
+</div>
+
+<div class="wrap">
+  <div class="namebar">
+    <div class="field"><label>내 이름</label><input type="text" data-k="myname" placeholder="이름을 적어요"></div>
+    <div class="field"><label>내 짝꿍 (나는 짝꿍 작품의 도슨트!)</label><input type="text" data-k="pairname" placeholder="2회차에 정해져요"></div>
+  </div>
+
+  <div id="warn">이 브라우저에서는 자동 저장이 되지 않아요. 화면을 닫으면 적은 내용이 사라질 수 있으니, 수업이 끝나면 꼭 <b>이미지로 저장</b> 버튼을 눌러 주세요.</div>
+
+  <div class="stones" id="stones"></div>
+
+  <div class="warmbar">
+    <div class="wb-txt">말하기 전에는 <b>준비운동</b>부터! 1분 30초면 목소리가 달라져요</div>
+    <button onclick="openWarm()">시작하기</button>
+  </div>
+
+  <!-- ================= 1회차 ================= -->
+  <section class="session" data-s="1">
+    <div class="s-head"><span class="no">1회차</span><h2>만남과 발견 — 우리는 왜 스피치를 배울까?</h2></div>
+    <div class="qbox"><span class="qtag">오늘의 질문</span>누군가의 말을 열심히 듣는데 "아… 무슨 말인지 모르겠다" 하고 지쳐본 적 있나요?</div>
+
+    <div class="philo">
+      <div class="big">좋은 말하기, 부족한 말하기는 없어요.<br>우리는 듣는 사람이 힘을 덜 쓰게 하려고 배웁니다.</div>
+      <div class="small">이 문장을 소리 내어 한 번 읽고 시작해요</div>
+    </div>
+
+    <div class="card">
+      <h3>철학 한 줄, 내 손으로</h3>
+      <div class="fillrow">말하기는 듣는 사람에게 주는 <input type="text" data-k="s1_gift" placeholder="        " style="max-width:110px"> 입니다.</div>
+    </div>
+
+    <div class="card">
+      <h3>공통점 헌팅</h3>
+      <div class="desc">오늘 발견한 제일 신기한 공통점 하나만 남겨요.</div>
+      <label>누구와?</label><input type="text" data-k="s1_who">
+      <label>우리의 공통점</label><input type="text" data-k="s1_common" placeholder="예) 둘 다 민트초코를 좋아함">
+    </div>
+
+    <div class="card">
+      <h3>4코너 게임 — 나의 스타일</h3>
+      <div class="desc">정답 코너는 없어요. 어디에 섰든 그게 나의 스타일! 내가 선 코너를 기록해요.</div>
+      <label>새 친구를 만나면 나는</label>
+      <select data-k="s1_c1"><option value="">선택</option><option>내가 먼저 말 건다</option><option>말 걸어주면 좋다</option><option>상황 봐서</option><option>일단 관찰한다</option></select>
+      <label>그림을 그릴 때 나는</label>
+      <select data-k="s1_c2"><option value="">선택</option><option>크게 슥슥</option><option>꼼꼼하게 차근차근</option><option>색깔부터 고른다</option><option>이야기부터 상상한다</option></select>
+      <label>발표할 때 나는</label>
+      <select data-k="s1_c3"><option value="">선택</option><option>재밌다!</option><option>떨리지만 해본다</option><option>준비되면 괜찮다</option><option>피하고 싶다</option></select>
+      <label>놀이터에서 나는</label>
+      <select data-k="s1_c4"><option value="">선택</option><option>제일 높은 곳부터</option><option>좋아하는 것만 반복</option><option>친구랑 수다가 최고</option><option>새로운 놀이를 발명</option></select>
+    </div>
+
+    <div class="card">
+      <h3>나만의 횡성 놀이터 — 자유 토킹</h3>
+      <div class="desc">이런 놀이터가 횡성에 있다면! 마음껏 상상해요.</div>
+      <label>내 놀이터 아이디어</label><textarea data-k="s1_idea" placeholder="예) 횡성호수 위에 떠 있는 트램펄린 놀이터"></textarea>
+      <label>친구 아이디어에 살 붙이기 (Yes, and!)</label><textarea data-k="s1_yesand" placeholder="친구의 아이디어 + 내가 더한 상상"></textarea>
+    </div>
+
+    <div class="card">
+      <h3>오늘의 한 문장</h3>
+      <input type="text" data-k="s1_oneline" placeholder="오늘 가장 마음에 남는 것 한 문장">
+    </div>
+  </section>
+
+  <!-- ================= 2회차 ================= -->
+  <section class="session" data-s="2">
+    <div class="s-head"><span class="no">2회차</span><h2>관찰과 인터뷰 — 짝꿍 작품의 도슨트가 되다</h2></div>
+    <div class="qbox"><span class="qtag">오늘의 질문</span>잘 들어주는 사람 앞에서는 말이 술술 나온 적, 있죠?</div>
+
+    <div class="card">
+      <h3>관찰의 눈 — 말없이 30초</h3>
+      <div class="desc">짝꿍의 작품(스케치)을 말없이 들여다보고, 보이는 것 3가지를 적어요. 도슨트는 설명하기 전에 먼저 잘 보는 사람이에요.</div>
+      <label>보이는 것 ① (색)</label><input type="text" data-k="s2_see1">
+      <label>보이는 것 ② (모양)</label><input type="text" data-k="s2_see2">
+      <label>보이는 것 ③ (등장하는 것)</label><input type="text" data-k="s2_see3">
+    </div>
+
+    <div class="card">
+      <h3>작가 인터뷰</h3>
+      <div class="desc">짝꿍(작가)에게 묻고, 들은 대답을 메모해요. 묻고 · 듣고 · 발견하기!</div>
+      <label>Q1. 무엇을 그렸나요?</label><textarea data-k="s2_iv1"></textarea>
+      <label>Q2. 왜 이걸 그리고 싶었나요?</label><textarea data-k="s2_iv2"></textarea>
+      <label>Q3. 작가가 제일 아끼는 부분은?</label><textarea data-k="s2_iv3"></textarea>
+    </div>
+
+    <div class="card">
+      <h3>작품 한 줄 소개</h3>
+      <div class="fillrow">이 작품은 <input type="text" data-k="s2_artist" placeholder="작가 이름" style="max-width:120px"> 작가의 작품인데, <input type="text" data-k="s2_what" placeholder="무엇"> 을(를) 그린 것이라고 해요.</div>
+      <div class="checkrow" style="margin-top:12px"><input type="checkbox" data-k="s2_ok"><span><b>작가의 확인</b> — "이렇게 소개해도 돼?" 하고 짝꿍에게 허락을 받았어요</span></div>
+    </div>
+  </section>
+
+  <!-- ================= 3회차 ================= -->
+  <section class="session" data-s="3">
+    <div class="s-head"><span class="no">3회차</span><h2>이야기 만들기 — 1분 해설 쓰기</h2></div>
+    <div class="qbox"><span class="qtag">오늘의 질문</span>길을 열심히 설명해 줬는데, 친구가 못 찾아온 적 있나요? 순서가 있으면 듣는 사람이 편해져요.</div>
+
+    <div class="card">
+      <h3>① 첫인사 — 모두 똑같이 이렇게 시작해요</h3>
+      <div class="desc">이 두 문장은 정해져 있어요. 빈칸만 채우면 끝!</div>
+      <div class="greet">
+        <p>“안녕하세요. 횡성 청소년 도슨트 <input type="text" data-k="myname" placeholder="내 이름"> 입니다.</p>
+        <p>제가 소개할 작품은 <input type="text" data-k="s2_artist" placeholder="작가 이름"> 작가의 <input type="text" data-k="s5_title" placeholder="작품 제목"> 입니다.”</p>
+      </div>
+      <div class="hintline">작품 제목은 짝꿍(작가)과 함께 정해요. 5회차에서 고칠 수도 있어요.</div>
+    </div>
+
+    <div class="card">
+      <h3>② 여는 말 — 시작 방법을 골라요</h3>
+      <div class="desc">첫인사 다음 한두 문장이 관람객의 귀를 열어요. 다섯 가지 중 마음에 드는 방법을 골라 보세요.</div>
+      <div class="chips" id="openChips"></div>
+      <div class="exwrap" id="openEx"></div>
+      <label>내가 쓴 여는 말</label>
+      <textarea data-k="s3_open" placeholder="위 예시를 참고해서 1~2문장으로 써 보세요"></textarea>
+    </div>
+
+    <div class="card">
+      <h3>③ 속 이야기 — 세 가지만 넣으면 돼요</h3>
+      <div class="desc">이 세 칸을 채우면 자연스럽게 이어집니다. 2회차 인터뷰 메모를 꺼내 보세요.</div>
+      <label>㉮ 무엇을 그렸는지 <span class="tag">1~2문장</span></label>
+      <textarea data-k="s3_b1" placeholder="예) 이 그림은 횡성호수길 위에 떠 있는 놀이터입니다. 미끄럼틀이 물속으로 이어져 있어요."></textarea>
+      <label>㉯ 작가가 왜 그렸는지 <span class="tag">2~3문장</span></label>
+      <textarea data-k="s3_b2" placeholder="예) 작가는 물을 무서워했다고 합니다. 그래서 물이 무섭지 않은 놀이터를 만들고 싶었대요. 이 미끄럼틀을 타면 누구나 물과 친해질 수 있습니다."></textarea>
+      <label>㉰ 내가 발견한 것 <span class="tag">2~3문장</span></label>
+      <textarea data-k="s3_b3" placeholder="예) 저는 이 그림에서 파란색이 열두 가지나 쓰인 것을 발견했습니다. 자세히 보면 구름 뒤에 작은 새 한 마리가 숨어 있어요. 찾아보세요!"></textarea>
+      <label>㉱ 횡성과 만나는 지점 <span class="tag">1문장</span></label>
+      <textarea data-k="s3_hs" placeholder="예) 이 물빛은 실제 횡성호수길 5구간의 색과 꼭 닮아 있습니다."></textarea>
+    </div>
+
+    <div class="card">
+      <h3>④ 닫는 말 — 마무리 방법도 골라요</h3>
+      <div class="chips" id="closeChips"></div>
+      <div class="exwrap" id="closeEx"></div>
+      <label>내가 쓴 닫는 말</label>
+      <textarea data-k="s3_close" placeholder="예) 처음에 제가 물어봤죠? 이제 그네를 타 보신 것 같나요?"></textarea>
+      <div class="hintline">마지막 인사는 자동으로 붙어요 → “지금까지 횡성 청소년 도슨트 ○○○였습니다. 들어주셔서 고맙습니다.”</div>
+    </div>
+
+    <div class="card">
+      <h3>⑤ 1분이 되었나요?</h3>
+      <div class="desc">1분 해설은 약 250자예요. 아래 막대가 초록색 구간에 들어오면 딱 좋습니다.</div>
+      <div class="meter" data-keys="s3_open,s3_b1,s3_b2,s3_b3,s3_hs,s3_close" data-greet="1"></div>
+      <div class="hintline">첫인사와 마지막 인사도 함께 계산했어요.</div>
+    </div>
+
+    <div class="card">
+      <h3>오늘의 한 문장</h3>
+      <input type="text" data-k="s3_oneline">
+    </div>
+  </section>
+
+  <!-- ================= 4회차 ================= -->
+  <section class="session" data-s="4">
+    <div class="s-head"><span class="no">4회차</span><h2>전달하기 — 듣는 사람이 편해지는 말</h2></div>
+    <div class="qbox"><span class="qtag">오늘의 질문</span>선생님 말이 너무 빨라서 필기를 못 따라간 적 있나요? 속도와 쉼은 듣는 사람을 위한 배려예요.</div>
+
+    <div class="card">
+      <h3>내 여는 말, 어떻게 말할까?</h3>
+      <div class="desc">3회차에서 고른 시작 방법마다 말하는 법이 달라요. 내 방법을 눌러 확인해요.</div>
+      <div class="chips" id="sayChips"></div>
+      <div class="exwrap" id="sayEx"></div>
+    </div>
+
+    <div class="card">
+      <h3>3회차 원고 읽기 연습</h3>
+      <div class="desc">3회차에서 쓴 해설을 그대로 불러와 소리 내어 읽어요. 읽으면서 <b>쉬어 갈 곳</b>과 <b>크게 말할 곳</b>을 직접 표시해 보세요.</div>
+      <div class="btnrow" style="margin-bottom:10px">
+        <button class="act b-ghost" onclick="pullTo4()">3회차 원고 불러오기</button>
+      </div>
+      <textarea class="tall" data-k="s4_read" placeholder="위 버튼을 누르면 3회차에 쓴 해설이 여기에 들어와요"></textarea>
+      <div class="markrow">
+        <button type="button" onclick="markRead('pause')">∨ 쉼 넣기</button>
+        <button type="button" onclick="markRead('loud')">★ 크게 말할 곳</button>
+        <button type="button" onclick="markRead('slow')">～ 천천히</button>
+      </div>
+      <div class="hintline">쉼표나 마침표 뒤를 눌러 <b>∨</b>를 넣고, 강조할 말은 드래그한 뒤 <b>★</b>를 누르세요. 원고는 마음대로 고쳐 써도 되고, 5회차에서 표시는 자동으로 지워집니다.</div>
+    </div>
+
+    <div class="card">
+      <h3>나의 전달 카드</h3>
+      <div class="desc">위에서 표시한 것 중 가장 중요한 것만 골라 적어요.</div>
+      <label>∨ 쉼을 넣을 곳</label><input type="text" data-k="s4_pause">
+      <label>크게 말할 단어 (제일 중요한 말)</label><input type="text" data-k="s4_loud">
+      <label>천천히 말할 문장</label><input type="text" data-k="s4_slow">
+    </div>
+
+    <div class="timerbox" data-timer="t4">
+      <div class="t-label">1분 리허설 스톱워치</div>
+      <div class="t-time">0:00.0</div>
+      <div class="t-bar"><div class="t-fill"></div></div>
+      <div class="t-goal">노란 바가 끝까지 차면 1분! 해설이 1분 안에 편안하게 들어가는지 확인해요</div>
+      <div class="t-btns"><button class="tb-main">시작</button><button class="tb-sub">다시</button></div>
+      <div class="t-msg"></div>
+    </div>
+
+    <div class="card">
+      <h3>1분 리허설 셀프 체크</h3>
+      <div class="checkrow"><input type="checkbox" data-k="s4_ck1"><span>듣는 사람이 따라올 속도로 말했어요</span></div>
+      <div class="checkrow"><input type="checkbox" data-k="s4_ck2"><span>중요한 말 앞에서 한 번 쉬었어요</span></div>
+      <div class="checkrow"><input type="checkbox" data-k="s4_ck3"><span>맨 뒷사람까지 들리는 크기였어요</span></div>
+      <div class="checkrow"><input type="checkbox" data-k="s4_ck4"><span>듣는 사람과 눈을 맞췄어요</span></div>
+    </div>
+
+    <div class="card">
+      <h3>짝꿍이 준 피드백</h3>
+      <div class="desc">교정이 아니라 확장! "더 꺼내자"와 "하나만 채우자"로 주고받아요.</div>
+      <label>더 꺼내자 — 내가 이미 잘하는 것</label><input type="text" data-k="s4_more">
+      <label>하나만 채우자 — 다음에 시도할 한 가지</label><input type="text" data-k="s4_fill">
+    </div>
+  </section>
+
+  <!-- ================= 5회차 ================= -->
+  <section class="session" data-s="5">
+    <div class="s-head"><span class="no">5회차</span><h2>해설집 원고 — 글로 남기는 목소리</h2></div>
+    <div class="qbox"><span class="qtag">오늘의 질문</span>1분은 생각보다 깁니다. 소리 내어 읽어 보면 내 원고가 짧은지 긴지 바로 알 수 있어요.</div>
+
+    <div class="card">
+      <h3>작품 제목</h3>
+      <div class="fillrow"><input type="text" data-k="s5_title" placeholder="작가와 함께 정한 작품 제목"></div>
+    </div>
+
+    <div class="card">
+      <h3>도슨트 해설 원고</h3>
+      <div class="desc">4회차에서 읽기 연습한 원고를 다듬어 완성해요. 이 글이 해설집에 실립니다.</div>
+      <textarea class="tall" data-k="s5_script"></textarea>
+      <div class="btnrow"><button class="act b-ghost" onclick="pull3()">4회차 원고 불러오기</button></div>
+      <div class="meter" data-keys="s5_script" style="margin-top:14px"></div>
+    </div>
+
+    <div class="timerbox" data-timer="t5">
+      <div class="t-label">원고 완성 확인 — 1분 스톱워치</div>
+      <div class="t-time">0:00.0</div>
+      <div class="t-bar"><div class="t-fill"></div></div>
+      <div class="t-goal">완성한 원고를 소리 내어 읽으며 1분에 들어가는지 재 봐요</div>
+      <div class="t-btns"><button class="tb-main">시작</button><button class="tb-sub">다시</button></div>
+      <div class="t-msg"></div>
+    </div>
+
+    <div class="card">
+      <h3>작가의 말</h3>
+      <div class="desc">짝꿍(작가)이 관람객에게 남기고 싶은 한마디를 받아 적어요.</div>
+      <textarea data-k="s5_artistnote"></textarea>
+    </div>
+  </section>
+
+  <!-- ================= 6회차 ================= -->
+  <section class="session" data-s="6">
+    <div class="s-head"><span class="no">6회차</span><h2>도슨트 데뷔 — 카메라 앞에 서다</h2></div>
+    <div class="qbox"><span class="qtag">오늘의 질문</span>녹음된 내 목소리는 왜 어색하게 들릴까요? 괜찮아요 — 카메라 너머의 관람객만 생각해요.</div>
+
+    <div class="card">
+      <h3>촬영 대본 (최종)</h3>
+      <textarea class="tall" data-k="s6_final"></textarea>
+      <div class="btnrow"><button class="act b-ghost" onclick="pull5()">5회차 원고 불러오기</button></div>
+      <div class="meter" data-keys="s6_final" style="margin-top:14px"></div>
+    </div>
+
+    <div class="timerbox" data-timer="t6">
+      <div class="t-label">촬영 전 마지막 점검 — 1분 스톱워치</div>
+      <div class="t-time">0:00.0</div>
+      <div class="t-bar"><div class="t-fill"></div></div>
+      <div class="t-goal">대본을 보지 않고 말해 보며 1분 감각을 몸에 익혀요</div>
+      <div class="t-btns"><button class="tb-main">시작</button><button class="tb-sub">다시</button></div>
+      <div class="t-msg"></div>
+    </div>
+
+    <div class="card">
+      <h3>카메라 체크리스트</h3>
+      <div class="checkrow"><input type="checkbox" data-k="s6_ck1"><span>첫인사 — "안녕하세요, 횡성 청소년 도슨트 ○○○입니다"</span></div>
+      <div class="checkrow"><input type="checkbox" data-k="s6_ck2"><span>시선은 카메라 렌즈(=관람객의 눈)에</span></div>
+      <div class="checkrow"><input type="checkbox" data-k="s6_ck3"><span>4회차 전달 카드(쉼·크게·천천히)대로</span></div>
+      <div class="checkrow"><input type="checkbox" data-k="s6_ck4"><span>마무리 인사 후 3초 멈추고 끝</span></div>
+    </div>
+
+    <div class="card">
+      <h3>6주의 마침표</h3>
+      <div class="fillrow">나에게 도슨트란 <input type="text" data-k="s6_tome" placeholder="        "> 이다.</div>
+      <label style="margin-top:14px">내 작품의 목소리가 되어 준 짝꿍에게 한마디</label>
+      <textarea data-k="s6_topair"></textarea>
+    </div>
+
+    <div class="philo">
+      <div class="big">여러분은 내 안의 좋은 것을 꺼내<br>듣는 사람에게 선물하는 법을 배웠습니다.<br>이 작품의 이야기는, 바로 여러분이 들려줍니다.</div>
+      <div class="small">수료를 축하합니다 — 횡성 청소년 도슨트</div>
+    </div>
+
+    <div class="card">
+      <h3>워크북 전체 저장하기</h3>
+      <div class="desc">회차별로 보내는 것과 별개로, 6주 기록 <b>전체</b>를 한 번에 이미지·메일·인쇄로 남길 수 있어요.</div>
+      <div class="btnrow">
+        <button class="act b-clay" onclick="makeCard('all')">전체 이미지 만들기</button>
+        <button class="act b-sage" id="sendBtn" onclick="sendToTeacher('all')">전체 선생님께 보내기</button>
+        <button class="act b-ghost" onclick="printAll()">전체 워크지 인쇄</button>
+      </div>
+      <div class="hintline">'선생님께 바로 보내기'는 메일창 없이 한 번에 전송돼요. 인터넷이 연결되어 있어야 해요.</div>
+    </div>
+  </section>
+
+  <div class="actbar">
+    <div class="ab-t">이 회차 <b id="abNo">1회차</b> 저장하기</div>
+    <div class="ab-b">
+      <button onclick="makeCard()">이미지 만들기</button>
+      <button id="abSend" onclick="sendToTeacher()">선생님께 보내기</button>
+      <button onclick="printOne()">인쇄</button>
+    </div>
+    <div class="ab-h">인쇄를 누르면 기기의 인쇄창이 열려요. 프린터가 없으면 <b>PDF로 저장</b>을 고르세요.</div>
+  </div>
+
+  <div class="pagenav">
+    <button class="act b-ghost" id="prevBtn" onclick="move(-1)">← 이전</button>
+    <button class="act b-clay" id="nextBtn" onclick="move(1)">다음 →</button>
+  </div>
+
+  <footer>
+    「내가 그린 횡성, 네가 전하는 이야기」<br>
+    2026 횡성 청소년 도슨트 양성 과정 및 전시 연계 프로젝트 · 디지털 워크북<br>
+    적은 내용은 이 기기·이 브라우저에만 저장됩니다 · 스피치 고은영
+    <div style="margin-top:10px">
+      <button class="act b-ghost" style="font-size:12px;padding:7px 14px" onclick="printAll()">전체 인쇄</button>
+      <button class="act b-ghost" style="font-size:12px;padding:7px 14px" onclick="resetAll()">처음부터 다시 쓰기</button>
+    </div>
+  </footer>
+</div>
+
+<div id="toast">저장되었습니다</div>
+
+<div id="modal"><div class="modal-in">
+  <h3>내 워크북 카드</h3>
+  <div class="guide">아래 이미지를 카카오톡이나 메일로 그대로 보낼 수 있어요.</div>
+  <img id="shot" alt="워크북 요약 카드">
+  <div class="btnrow" style="margin-top:12px">
+    <button class="act b-clay" id="shareBtn" onclick="shareCard()">공유하기 (카톡·메일)</button>
+    <button class="act b-sage" onclick="saveCard()">사진에 저장</button>
+    <button class="act b-ghost" onclick="document.getElementById('modal').classList.remove('on')">닫기</button>
+  </div>
+  <div class="hintline" id="shotHint">공유하기를 누르면 카카오톡·메일 등 보낼 곳을 고를 수 있어요.</div>
+</div></div>
+
+<div id="wmodal"><div class="w-in">
+
+  <div id="wMenu">
+    <div class="wm-h">말하기 전 준비운동</div>
+    <div class="wm-s">보고 그대로 따라 하면 돼요.<br>하나만 골라도 좋고, 전체를 순서대로 해도 좋아요.</div>
+    <div class="wm-grid" id="wGrid"></div>
+    <div class="w-btns">
+      <button class="wb-main" onclick="runAll()">전체 순서대로 (1분 30초)</button>
+      <button class="wb-sub" onclick="closeWarm()">닫기</button>
+    </div>
+  </div>
+
+  <div id="wRunView" style="display:none">
+    <div class="w-step" id="wStep"></div>
+    <div class="w-title" id="wTitle"></div>
+    <div class="w-sub" id="wSub"></div>
+    <div class="w-stage"><div class="breath" id="wCircle"></div></div>
+    <div class="w-count" id="wCount"></div>
+    <div class="w-bar"><div class="w-fill" id="wFill"></div></div>
+    <div class="w-btns">
+      <button class="wb-main" id="wMain" onclick="warmToggle()">시작</button>
+      <button class="wb-sub" onclick="warmSkip()">다음</button>
+      <button class="wb-sub" onclick="backMenu()">목록으로</button>
+    </div>
+  </div>
+
+</div></div>
+
+<div id="sumcard"></div>
+<script>
+/* ---------- safe storage ---------- */
+var mem = {};
+var canStore = false;
+try {
+  localStorage.setItem('__t','1'); localStorage.removeItem('__t'); canStore = true;
+} catch(e){ canStore = false; }
+if(!canStore) document.getElementById('warn').style.display = 'block';
+var KEY = 'hs_playground_workbook_v1';
+
+function loadData(){
+  if(canStore){
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; }
+  }
+  return mem;
+}
+function saveData(d){
+  if(canStore){ try { localStorage.setItem(KEY, JSON.stringify(d)); } catch(e){} }
+  else mem = d;
+}
+var data = loadData();
+
+/* ---------- bind fields ---------- */
+var fields = document.querySelectorAll('[data-k]');
+fields.forEach(function(el){
+  var k = el.dataset.k;
+  if(el.type === 'checkbox'){ el.checked = !!data[k]; }
+  else if(data[k] !== undefined){ el.value = data[k]; }
+  var ev = (el.tagName === 'SELECT' || el.type === 'checkbox') ? 'change' : 'input';
+  el.addEventListener(ev, function(){
+    data[k] = (el.type === 'checkbox') ? el.checked : el.value;
+    if(el.type !== 'checkbox') syncKey(k, el);
+    debounceSave();
+  });
+});
+
+function syncKey(k, src){
+  fields.forEach(function(o){
+    if(o !== src && o.dataset.k === k && o.type !== 'checkbox' && o.value !== src.value) o.value = src.value;
+  });
+}
+
+var saveTimer = null, toastTimer = null;
+function debounceSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    saveData(data);
+    updateStones();
+    updateMeters();
+    var t = document.getElementById('toast');
+    t.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 1200);
+  }, 600);
+}
+
+/* ---------- stepping stones nav ---------- */
+var LABELS = ['만남과\n발견','관찰과\n인터뷰','이야기\n만들기','전달\n하기','해설집\n원고','도슨트\n데뷔'];
+var cur = parseInt(data.__page || 1, 10);
+var stonesBox = document.getElementById('stones');
+for(var i=1;i<=6;i++){
+  (function(n){
+    var b = document.createElement('button');
+    b.className = 'stone';
+    b.innerHTML = '<span class="dot">'+n+'</span><span class="lb">'+LABELS[n-1].replace('\n','<br>')+'</span>';
+    b.addEventListener('click', function(){ go(n); });
+    stonesBox.appendChild(b);
+  })(i);
+}
+function sessionDone(n){
+  var els = document.querySelectorAll('.session[data-s="'+n+'"] [data-k]');
+  var filled = 0, total = 0;
+  els.forEach(function(el){
+    total++;
+    var v = (el.type==='checkbox') ? el.checked : (el.value||'').trim();
+    if(v) filled++;
+  });
+  return total > 0 && filled / total >= 0.6;
+}
+function updateStones(){
+  var st = stonesBox.querySelectorAll('.stone');
+  st.forEach(function(b, idx){
+    var n = idx+1;
+    b.classList.toggle('active', n === cur);
+    b.classList.toggle('done', n !== cur && sessionDone(n));
+  });
+  document.getElementById('prevBtn').style.visibility = (cur===1)?'hidden':'visible';
+  document.getElementById('nextBtn').style.visibility = (cur===6)?'hidden':'visible';
+}
+function go(n){
+  cur = n;
+  data.__page = n; saveData(data);
+  document.querySelectorAll('.session').forEach(function(s){
+    s.classList.toggle('show', parseInt(s.dataset.s,10) === n);
+  });
+  updateStones();
+  var ab = document.getElementById('abNo');
+  if(ab) ab.textContent = n + '회차';
+  window.scrollTo({top:0});
+}
+function move(d){ var n = Math.min(6, Math.max(1, cur + d)); go(n); }
+go(cur);
+
+/* ---------- opening / closing style guides ---------- */
+var OPEN_STYLES = [
+ {id:'q', n:'질문형', h:'듣는 사람에게 물어보며 시작해요. 관람객이 “어?” 하고 그림을 다시 봐요.',
+  ex:['여러분, 하늘을 나는 그네를 타 본 적 있나요?',
+      '이 그림에서 가장 먼저 눈에 들어오는 색은 무엇인가요?',
+      '만약 이 놀이터에 들어갈 수 있다면, 어디부터 가고 싶으세요?'],
+  f:'여러분, ○○○ 해 본 적 있나요?'},
+ {id:'d', n:'묘사형', h:'그림 속 장면을 눈에 보이듯 그려 줘요. 뒤에 있는 사람도 상상할 수 있어요.',
+  ex:['파란 물결 위로 노란 미끄럼틀이 길게 뻗어 있습니다.',
+      '그림 한가운데, 커다란 나무 한 그루가 두 팔을 벌리고 서 있어요.',
+      '작은 아이 열 명이 저마다 다른 곳을 바라보고 있습니다.'],
+  f:'그림 속에는 ○○○이(가) ○○○ 하고 있습니다.'},
+ {id:'i', n:'정보형', h:'작품의 사실부터 또박또박. 가장 안전하고 깔끔한 방법이에요.',
+  ex:['이 작품은 횡성호수길을 놀이터로 바꿔 그린 그림입니다.',
+      '작가는 이 그림을 3주 동안 그렸다고 합니다.',
+      '이 그림에는 횡성의 다섯 장소가 숨어 있습니다.'],
+  f:'이 작품은 ○○○을(를) 그린 그림입니다.'},
+ {id:'s', n:'소리·감각형', h:'소리나 냄새로 시작하면 관람객의 상상이 먼저 켜져요.',
+  ex:['찰박찰박, 물 밟는 소리가 들리는 것 같지 않나요?',
+      '이 그림 앞에 서면 안흥찐빵의 달큰한 냄새가 나는 것 같아요.',
+      '“와!” 하는 소리가 그림 밖까지 들리는 것 같습니다.'],
+  f:'○○○ 소리가 들리는 것 같지 않나요?'},
+ {id:'m', n:'비유형', h:'“마치 ~같아요”로 시작해요. 어려운 것도 한 번에 이해돼요.',
+  ex:['이 놀이터는 마치 커다란 사탕 상자 같아요.',
+      '미끄럼틀이 마치 무지개가 내려온 것처럼 보입니다.',
+      '나무가 마치 아이들을 안아 주는 팔 같습니다.'],
+  f:'이 작품은 마치 ○○○ 같아요.'}
+];
+
+var CLOSE_STYLES = [
+ {id:'c1', n:'초대형', h:'관람객을 그림 안으로 초대하며 끝내요.',
+  ex:['이제 여러분도 이 놀이터에서 한번 놀아 보세요.',
+      '다음에 횡성호수길에 가시면 이 그림을 떠올려 주세요.'],
+  f:'이제 여러분도 ○○○ 해 보세요.'},
+ {id:'c2', n:'되돌리기형', h:'처음에 던진 질문으로 돌아와요. 질문형으로 시작했다면 딱 좋아요.',
+  ex:['처음에 제가 물어봤죠? 하늘을 나는 그네, 이제 타 보신 것 같나요?',
+      '가장 먼저 눈에 들어온 색, 지금도 같은가요?'],
+  f:'처음에 제가 물어봤죠? ○○○.'},
+ {id:'c3', n:'마음형', h:'내 마음을 솔직하게 전하고 끝내요.',
+  ex:['저는 이 그림을 볼 때마다 마음이 시원해집니다. 여러분은 어떠셨나요?',
+      '이 작품을 소개하면서 저도 횡성을 다시 보게 되었습니다.'],
+  f:'저는 이 그림을 보면 ○○한 마음이 듭니다.'}
+];
+
+var SAY_TIPS = [
+ {id:'q', n:'질문형', h:'질문한 뒤 <b>2초 멈추기</b>. 관람객이 머릿속으로 답할 시간을 줘요.',
+  ex:['“타 본 적 있나요?” → (눈 맞추고 2초) → 다음 문장',
+      '질문 끝을 살짝 올려서 말해요 ↗']},
+ {id:'d', n:'묘사형', h:'<b>천천히</b> 말해요. 듣는 사람이 그림을 머릿속에 그릴 시간이 필요해요.',
+  ex:['“파란 물결 위로 / 노란 미끄럼틀이 / 길게 뻗어 있습니다”',
+      '/ 표시에서 살짝 쉬면 그림이 더 잘 보여요']},
+ {id:'i', n:'정보형', h:'<b>또박또박, 조금 크게.</b> 숫자와 이름은 특히 정확하게.',
+  ex:['“횡성호수길” 같은 이름은 한 글자씩 힘주어',
+      '숫자 앞에서 살짝 쉬기: “작가는 / 3주 동안 그렸습니다”']},
+ {id:'s', n:'소리·감각형', h:'소리 흉내는 <b>실감 나게!</b> 부끄러워하면 효과가 사라져요.',
+  ex:['“찰박찰박” — 진짜 물소리처럼',
+      '냄새 이야기는 눈을 살짝 감았다 뜨며']},
+ {id:'m', n:'비유형', h:'“마치”에서 한 번 쉬고, <b>비유한 것을 강조</b>해요.',
+  ex:['“이 놀이터는 마치 / 커다란 사탕 상자 같아요”',
+      '‘사탕 상자’를 조금 크고 천천히']}
+];
+
+function renderStyles(list, chipId, exId, key){
+  var chips = document.getElementById(chipId), ex = document.getElementById(exId);
+  if(!chips) return;
+  chips.innerHTML = '';
+  list.forEach(function(st){
+    var b = document.createElement('button');
+    b.textContent = st.n;
+    if(data[key] === st.id) b.className = 'on';
+    b.addEventListener('click', function(){
+      data[key] = (data[key] === st.id) ? '' : st.id;
+      debounceSave();
+      renderAllStyles();
+    });
+    chips.appendChild(b);
+  });
+  var cur = list.filter(function(s){ return s.id === data[key]; })[0];
+  if(!cur){ ex.innerHTML = '<div class="exempty">위에서 방법을 하나 눌러 보세요. 예시가 나와요.</div>'; return; }
+  var out = '<div class="exh">' + cur.h + '</div>';
+  cur.ex.forEach(function(e){ out += '<div class="exi">' + e + '</div>'; });
+  if(cur.f) out += '<div class="exf">이 틀로 써 보세요 → ' + cur.f + '</div>';
+  ex.innerHTML = out;
+}
+function renderAllStyles(){
+  renderStyles(OPEN_STYLES, 'openChips', 'openEx', 's3_style');
+  renderStyles(CLOSE_STYLES, 'closeChips', 'closeEx', 's3_cstyle');
+  renderStyles(SAY_TIPS, 'sayChips', 'sayEx', 's3_style');
+}
+
+/* ---------- fixed greeting / sign-off ---------- */
+function hasJong(ch){
+  if(!ch) return false;
+  var c = ch.charCodeAt(0);
+  if(c < 0xAC00 || c > 0xD7A3) return false;
+  return (c - 0xAC00) % 28 !== 0;
+}
+function greetText(){
+  return '안녕하세요. 횡성 청소년 도슨트 ' + (data.myname || '○○○') + '입니다.\n'
+    + '제가 소개할 작품은 ' + (data.s2_artist || '○○○') + ' 작가의 「' + (data.s5_title || '○○○') + '」입니다.';
+}
+function byeText(){
+  var nm = data.myname || '○○○';
+  return '지금까지 횡성 청소년 도슨트 ' + nm + (hasJong(nm.slice(-1)) ? '이었습니다' : '였습니다')
+    + '. 들어주셔서 고맙습니다.';
+}
+
+/* ---------- 1-minute length meter ---------- */
+var CPS = 4.2; /* 초당 글자수(아이 낭독 기준) → 1분 ≒ 250자 */
+function updateMeters(){
+  document.querySelectorAll('.meter').forEach(function(m){
+    var keys = m.dataset.keys.split(',');
+    var txt = keys.map(function(k){ return data[k] || ''; }).join(' ');
+    if(m.dataset.greet) txt += greetText() + byeText();
+    var n = txt.replace(/\s/g, '').length;
+    var sec = Math.round(n / CPS);
+    var pct = Math.min(100, sec / 90 * 100);
+    var cls = '', tip = '';
+    if(sec < 50){ cls = ''; tip = '조금 더 써 볼까요? <b>' + Math.max(0, 250 - n) + '자</b>만 더 쓰면 1분이 돼요.'; }
+    else if(sec <= 70){ cls = 'ok'; tip = '<b>딱 좋아요!</b> 1분 해설 분량입니다.'; }
+    else { cls = 'over'; tip = '조금 길어요. 가장 덜 중요한 문장 <b>한 줄</b>만 지워 볼까요?'; }
+    m.innerHTML = '<div class="mnum"><b>' + n + '</b>자 · 약 <b>' + sec + '</b>초</div>'
+      + '<div class="mtrack"><div class="mzone"></div><div class="mfill ' + cls + '" style="width:' + pct + '%"></div></div>'
+      + '<div class="mscale"><span>0초</span><span>50초</span><span>1분 10초</span><span>1분 30초</span></div>'
+      + '<div class="mtip">' + tip + '</div>';
+  });
+}
+
+/* ---------- pull drafts forward ---------- */
+function buildScript(){
+  var mid = [data.s3_open, data.s3_b1, data.s3_b2, data.s3_b3, data.s3_hs, data.s3_close].filter(Boolean);
+  if(!mid.length) return '';
+  return greetText() + '\n\n' + mid.join('\n\n') + '\n\n' + byeText();
+}
+function pullTo4(){
+  var t = buildScript();
+  if(!t){ alert('3회차 내용이 아직 비어 있어요.'); return; }
+  var el = document.querySelector('[data-k="s4_read"]');
+  if(el.value.trim() && !confirm('4회차에 이미 쓴 내용이 있어요. 3회차 원고로 바꿀까요?')) return;
+  el.value = t; data.s4_read = t; debounceSave();
+}
+function markRead(kind){
+  var el = document.querySelector('[data-k="s4_read"]');
+  if(!el.value.trim()){ alert('먼저 3회차 원고를 불러오거나 직접 써 주세요.'); return; }
+  var s = el.selectionStart, e = el.selectionEnd, v = el.value, out, pos;
+  if(kind === 'pause'){ out = v.slice(0, e) + '∨' + v.slice(e); pos = e + 1; }
+  else {
+    var mk = (kind === 'loud') ? '★' : '～';
+    if(s !== e){ out = v.slice(0, s) + mk + v.slice(s, e) + mk + v.slice(e); pos = e + 2; }
+    else { out = v.slice(0, s) + mk + v.slice(s); pos = s + 1; }
+  }
+  el.value = out; data.s4_read = out; debounceSave();
+  el.focus(); el.setSelectionRange(pos, pos);
+}
+function pull3(){
+  var t = (data.s4_read || '').trim();
+  var src = '4회차에서 읽기 연습한 원고';
+  if(t){ t = t.replace(/[∨★～]/g, ''); }
+  else { t = buildScript(); src = '3회차 원고'; }
+  if(!t){ alert('3·4회차 내용이 아직 비어 있어요.'); return; }
+  var el = document.querySelector('[data-k="s5_script"]');
+  if(el.value.trim() && !confirm('5회차에 이미 쓴 내용이 있어요. ' + src + '으로 바꿀까요?')) return;
+  el.value = t; data.s5_script = t; debounceSave();
+}
+function pull5(){
+  if(!data.s5_script){ alert('5회차 원고가 아직 비어 있어요.'); return; }
+  var el = document.querySelector('[data-k="s6_final"]');
+  if(el.value.trim() && !confirm('6회차에 이미 쓴 내용이 있어요. 5회차 원고로 바꿀까요?')) return;
+  el.value = data.s5_script;
+  data.s6_final = el.value; debounceSave();
+}
+
+/* ---------- summary card ---------- */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function row(k,v){ return v ? '<div class="sc-row"><div class="k">'+k+'</div><div class="v">'+esc(v)+'</div></div>' : ''; }
+var lastBlob = null;
+function makeCard(scope){
+  scope = scope || cur;
+  var c = document.getElementById('sumcard');
+  if(scope !== 'all'){
+    var rows = sessionRows(scope);
+    if(!rows.length){ alert('이 회차에 아직 적은 내용이 없어요.'); return; }
+    c.innerHTML = '<div class="sc-hero"><div class="t">' + esc(sessionTitle(scope)) + '</div>'
+      + '<div class="s">내가 그린 횡성, 네가 전하는 이야기 · ' + esc(data.myname || '이름 없음') + '</div></div>'
+      + rows.map(function(r){ return row(r[0], r[1]); }).join('')
+      + '<div class="sc-foot">작품은 하나, 이야기는 무한대 · 2026 횡성 청소년 도슨트 양성 과정</div>';
+    return renderCard(c);
+  }
+  c.innerHTML =
+    '<div class="sc-hero"><div class="t">내가 그린 횡성, 네가 전하는 이야기</div><div class="s">2026 횡성 청소년 도슨트 워크북 · '+esc(data.myname||'이름 없음')+'</div></div>'
+    + row('나의 짝꿍 (내가 도슨트가 되어 준 작가)', data.pairname)
+    + row('작품 제목', data.s5_title)
+    + row('작품 한 줄 소개', data.s2_artist ? ('이 작품은 '+data.s2_artist+' 작가의 작품인데, '+(data.s2_what||'')+ '을(를) 그린 것이라고 해요.') : '')
+    + row('도슨트 해설 (최종)', data.s6_final || data.s5_script)
+    + row('작가의 말', data.s5_artistnote)
+    + row('나에게 도슨트란', data.s6_tome ? ('도슨트란 "'+data.s6_tome+'" 이다.') : '')
+    + row('짝꿍에게 한마디', data.s6_topair)
+    + '<div class="sc-foot">작품은 하나, 이야기는 무한대 · 2026 횡성 청소년 도슨트 양성 과정</div>';
+  renderCard(c);
+}
+function renderCard(c){
+  html2canvas(c, {scale: 2, backgroundColor: '#EFF4FB'}).then(function(canvas){
+    document.getElementById('shot').src = canvas.toDataURL('image/png');
+    lastBlob = null;
+    if(canvas.toBlob){ canvas.toBlob(function(b){ lastBlob = b; setShareUI(); }, 'image/png'); }
+    else setShareUI();
+    document.getElementById('modal').classList.add('on');
+  }).catch(function(){
+    alert('이미지 생성에 실패했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.');
+  });
+}
+function cardFile(){
+  if(!lastBlob) return null;
+  try { return new File([lastBlob], '워크북_' + (data.myname || '학생') + '.png', {type:'image/png'}); }
+  catch(e){ return null; }
+}
+function canShareCard(){
+  var f = cardFile();
+  return !!(f && navigator.canShare && navigator.canShare({files:[f]}) && navigator.share);
+}
+function setShareUI(){
+  var b = document.getElementById('shareBtn'), h = document.getElementById('shotHint');
+  if(!b) return;
+  if(canShareCard()){
+    b.style.display = '';
+    h.innerHTML = '공유하기를 누르면 카카오톡·메일 등 보낼 곳을 고를 수 있어요. 선생님 메일 <b>shey_love@naver.com</b>';
+  } else {
+    b.style.display = 'none';
+    h.innerHTML = '이미지를 <b>길게 눌러 저장</b>한 뒤 카카오톡이나 메일로 보내 주세요. 선생님 메일 <b>shey_love@naver.com</b>';
+  }
+}
+function shareCard(){
+  var f = cardFile();
+  if(!canShareCard()){ alert('이 브라우저에서는 공유가 안 돼요. 이미지를 길게 눌러 저장한 뒤 보내 주세요.'); return; }
+  navigator.share({
+    files: [f],
+    title: '내가 그린 횡성, 네가 전하는 이야기',
+    text: (data.myname || '') + ' 도슨트 워크북입니다. (선생님 메일 shey_love@naver.com)'
+  }).catch(function(){});
+}
+function saveCard(){
+  var src = document.getElementById('shot').src;
+  if(!src){ return; }
+  var a = document.createElement('a');
+  a.href = src; a.download = '워크북_' + (data.myname || '학생') + '.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+/* ---------- per-session collectors ---------- */
+function sessionTitle(n){
+  var h = document.querySelector('.session[data-s="' + n + '"] h2');
+  return n + '회차 · ' + (h ? h.textContent.split('—')[0].trim() : '');
+}
+function fieldLabel(el){
+  if(el.type === 'checkbox'){
+    var r = el.closest('.checkrow');
+    return r ? r.textContent.replace(/\s+/g, ' ').trim() : '';
+  }
+  var p = el.previousElementSibling;
+  while(p){ if(p.tagName === 'LABEL') return p.textContent.replace(/\s+/g, ' ').trim(); p = p.previousElementSibling; }
+  var fr = el.closest('.fillrow');
+  if(fr){
+    var t = fr.textContent.replace(/\s+/g, ' ').trim();
+    if(t) return t;
+  }
+  var card = el.closest('.card'), h3 = card ? card.querySelector('h3') : null;
+  return h3 ? h3.textContent.replace(/\s+/g, ' ').trim() : (el.placeholder || '기록');
+}
+function sessionRows(n){
+  var out = [], seen = {};
+  document.querySelectorAll('.session[data-s="' + n + '"] [data-k]').forEach(function(el){
+    var k = el.dataset.k;
+    var v = (el.type === 'checkbox') ? (data[k] ? '완료' : '') : (data[k] || '');
+    if(!v || seen[k]) return;
+    seen[k] = 1;
+    out.push([fieldLabel(el), v]);
+  });
+  return out;
+}
+function sessionText(n){
+  var rows = sessionRows(n);
+  if(!rows.length) return '';
+  var L = ['[내가 그린 횡성, 네가 전하는 이야기] ' + sessionTitle(n),
+           '학생: ' + (data.myname || '이름 없음') + '  |  짝꿍: ' + (data.pairname || '-'), ''];
+  rows.forEach(function(r){ L.push(r[0] + ': ' + r[1]); });
+  return L.join('\n');
+}
+
+/* ---------- full workbook text export ---------- */
+var LABELMAP = [
+  ['=== 1회차 만남과 발견 ===', null],
+  ['말하기는 듣는 사람에게 주는', 's1_gift'],
+  ['공통점 헌팅 - 누구와', 's1_who'], ['공통점 헌팅 - 공통점', 's1_common'],
+  ['4코너: 새 친구를 만나면', 's1_c1'], ['4코너: 그림 그릴 때', 's1_c2'],
+  ['4코너: 발표할 때', 's1_c3'], ['4코너: 놀이터에서', 's1_c4'],
+  ['내 놀이터 아이디어', 's1_idea'], ['Yes, and! 살 붙이기', 's1_yesand'],
+  ['1회차 오늘의 한 문장', 's1_oneline'],
+  ['=== 2회차 관찰과 인터뷰 ===', null],
+  ['보이는 것 1 (색)', 's2_see1'], ['보이는 것 2 (모양)', 's2_see2'], ['보이는 것 3 (등장)', 's2_see3'],
+  ['인터뷰 Q1 무엇을 그렸나', 's2_iv1'], ['인터뷰 Q2 왜 그렸나', 's2_iv2'], ['인터뷰 Q3 아끼는 부분', 's2_iv3'],
+  ['작가 이름', 's2_artist'], ['그린 것', 's2_what'], ['작가 확인', 's2_ok'],
+  ['=== 3회차 이야기 만들기 ===', null],
+  ['여는 말', 's3_open'],
+  ['속① 무엇을 그렸는지', 's3_b1'], ['속② 작가가 왜 그렸는지', 's3_b2'], ['속③ 내가 발견한 것', 's3_b3'],
+  ['횡성과 만나는 지점', 's3_hs'], ['닫는 말', 's3_close'], ['3회차 오늘의 한 문장', 's3_oneline'],
+  ['=== 4회차 전달하기 ===', null],
+  ['읽기 연습 원고 (표시 포함)', 's4_read'], ['쉼을 넣을 곳', 's4_pause'], ['크게 말할 단어', 's4_loud'], ['천천히 말할 문장', 's4_slow'],
+  ['셀프체크 속도', 's4_ck1'], ['셀프체크 쉼', 's4_ck2'], ['셀프체크 성량', 's4_ck3'], ['셀프체크 눈맞춤', 's4_ck4'],
+  ['피드백 - 더 꺼내자', 's4_more'], ['피드백 - 하나만 채우자', 's4_fill'],
+  ['=== 5회차 해설집 원고 ===', null],
+  ['작품 제목', 's5_title'], ['도슨트 해설 원고', 's5_script'], ['작가의 말', 's5_artistnote'],
+  ['=== 6회차 도슨트 데뷔 ===', null],
+  ['촬영 대본 (최종)', 's6_final'],
+  ['카메라체크 첫인사', 's6_ck1'], ['카메라체크 시선', 's6_ck2'], ['카메라체크 전달카드', 's6_ck3'], ['카메라체크 마무리', 's6_ck4'],
+  ['나에게 도슨트란', 's6_tome'], ['짝꿍에게 한마디', 's6_topair']
+];
+function fullText(){
+  var L = ['[내가 그린 횡성, 네가 전하는 이야기] 디지털 워크북',
+           '학생: ' + (data.myname || '이름 없음') + '  |  짝꿍: ' + (data.pairname || '-')];
+  LABELMAP.forEach(function(pair){
+    var label = pair[0], k = pair[1];
+    if(k === null){ L.push('\n' + label); return; }
+    var v = data[k];
+    if(v === true) L.push(label + ': 완료');
+    else if(v) L.push(label + ': ' + v);
+  });
+  return L.join('\n');
+}
+
+/* ---------- text copy fallback ---------- */
+function copyAll(){
+  var txt = fullText();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ alert('복사되었어요! 카카오톡에 붙여넣기 하세요.'); });
+  } else {
+    prompt('아래 내용을 길게 눌러 복사하세요', txt);
+  }
+}
+
+/* ---------- warm-up: categories students follow ---------- */
+var WCATS = [
+  {id:'sh',  name:'어깨 풀기',   tip:'몸이 굳으면 목소리도 굳어요'},
+  {id:'br',  name:'숨쉬기',      tip:'목소리의 연료를 채워요'},
+  {id:'jw',  name:'턱 운동',     tip:'말을 만드는 입을 깨워요'},
+  {id:'tg',  name:'혀 풀기',     tip:'발음이 또렷해져요'},
+  {id:'mt',  name:'연습 멘트',   tip:'입에 붙는 문장으로 마무리'}
+];
+
+var WSTEPS = [
+{cat:'sh', t:'바르게 서기', s:'두 발은 어깨너비, 어깨 힘 빼고 시선은 정면', d:6, f:'차렷'},
+{cat:'sh', t:'으쓱 — 툭!', s:'어깨를 귀에 닿게 올렸다가, 하나 둘 셋, 툭 내려놓기', d:8, f:'으쓱'},
+{cat:'sh', t:'앞뒤로 크게 돌리기', s:'앞으로 크게 셋, 뒤로 크게 셋', d:10, f:'빙글'},
+
+{cat:'br', t:'코로 천천히 들이마시기', s:'한 손은 배에 — 어깨 말고 배가 볼록해지게', d:5, c:'in', f:'들숨', note:'5초가 힘들면 3초만 해도 괜찮아요. 어지러우면 바로 멈추세요.'},
+{cat:'br', t:'후우우우우—', s:'촛불이 꺼지지 않을 만큼 가늘고 길게', d:10, c:'out', f:'날숨'},
+{cat:'br', t:'하!', s:'남은 숨까지, 배가 납작해지도록', d:3, c:'ha', f:'하!'},
+{cat:'br', t:'다시 한번 — 배는 볼록!', s:'하나, 둘, 셋, 넷, 다섯', d:5, c:'in', f:'들숨'},
+{cat:'br', t:'후우우우우—', s:'끝까지, 조금만 더', d:10, c:'out', f:'날숨'},
+{cat:'br', t:'하!', s:'이제 목소리의 연료가 가득 찼어요', d:3, c:'ha', f:'하!'},
+
+{cat:'jw', t:'하품하듯이 아—', s:'턱에 힘을 빼고 아래로 툭 떨어뜨려요', d:6, f:'아—'},
+{cat:'jw', t:'입을 최대한 크게', s:'아(위아래로) 에(양옆으로) 이(활짝 웃는 입) 오(동그랗게) 우(앞으로 쭉) 으(힘 빼고)', d:10, f:'아에이오우으'},
+{cat:'jw', t:'이번엔 빠르게!', s:'아에이오우으! 한 번 더, 아에이오우으!', d:6, f:'빠르게'},
+
+{cat:'tg', t:'혀를 턱에 닿게 쭉!', s:'하나 둘 셋 쏙 — 3번 반복', d:8, f:'메롱'},
+{cat:'tg', t:'입술 한 바퀴', s:'혀로 입술 주변을 오른쪽 한 바퀴, 왼쪽 한 바퀴', d:8, f:'빙글'},
+{cat:'tg', t:'라라라 다다다 나나나', s:'혀끝을 윗니 뒤에 대고 또박또박', d:10, f:'라라라'},
+
+{cat:'mt', t:'또박또박 소리 내어 읽어요', s:'', d:0, f:'', ment:true}
+];
+
+var WMENTS = '<div class="mt">발음 — 횡성 잰말놀이</div>'
+  + '<div>횡성 한우 한 우리, 한 우리 안에 한우 한 마리</div>'
+  + '<div>안흥 찐빵 찐 김이 술술, 찐빵 속 팥이 살살</div>'
+  + '<div>청태산 참나무 참새가 참참참</div>'
+  + '<div class="mt" style="padding-top:10px">도슨트 첫인사</div>'
+  + '<div>안녕하세요, 횡성 청소년 도슨트 ○○○입니다.</div>'
+  + '<div>지금부터 ○○○ 작가의 작품을 소개해 드리겠습니다.</div>';
+
+var wDone = {};
+function catSecs(id){
+  var t = 0;
+  WSTEPS.forEach(function(s){ if(s.cat === id) t += s.d; });
+  return t;
+}
+function catLabel(id){
+  var c = WCATS.filter(function(x){ return x.id === id; })[0];
+  return c ? c.name : '';
+}
+function buildGrid(){
+  var g = document.getElementById('wGrid');
+  g.innerHTML = '';
+  WCATS.forEach(function(c, n){
+    var sec = catSecs(c.id);
+    var time = c.id === 'mt' ? '읽기' : (sec >= 60 ? Math.floor(sec/60) + '분 ' + (sec%60) + '초' : sec + '초');
+    var b = document.createElement('button');
+    b.className = 'wm-card' + (wDone[c.id] ? ' ok' : '');
+    b.innerHTML = '<span class="wm-n">' + (n+1) + '</span>'
+      + '<span class="wm-nm">' + c.name + (wDone[c.id] ? ' ✓' : '') + '</span>'
+      + '<span class="wm-tp">' + c.tip + '</span>'
+      + '<span class="wm-tm">' + time + '</span>';
+    b.addEventListener('click', function(){ runCat(c.id); });
+    g.appendChild(b);
+  });
+}
+
+/* ---- run queue ---- */
+var queue = [], qi = 0, wRun = false, wLeft = 0, wIv = null, curCat = '';
+function wPaint(){
+  var st = WSTEPS[queue[qi]];
+  document.getElementById('wStep').textContent = catLabel(st.cat)
+    + (queue.length > 1 ? '  ' + (qi+1) + ' / ' + queue.length : '');
+  document.getElementById('wTitle').textContent = st.t;
+  var sub = document.getElementById('wSub');
+  var stage = document.querySelector('.w-stage');
+  var circle = document.getElementById('wCircle');
+  if(st.ment){
+    sub.innerHTML = '<div class="w-ments">' + WMENTS + '</div>';
+    stage.style.display = 'none';
+    document.getElementById('wCount').textContent = '다 읽었으면 목록으로';
+    document.getElementById('wFill').style.width = '100%';
+  } else {
+    sub.innerHTML = (st.s ? '<div class="w-say">' + st.s + '</div>' : '')
+      + (st.note ? '<div class="w-note">※ ' + st.note + '</div>' : '');
+    stage.style.display = 'flex';
+    circle.className = 'breath' + (st.c ? ' ' + st.c : '') + (st.f.length > 3 ? ' small' : '');
+    circle.textContent = st.f;
+    document.getElementById('wCount').textContent = wLeft + '초';
+    document.getElementById('wFill').style.width = (qi / queue.length * 100) + '%';
+  }
+}
+function wGo(n){
+  qi = Math.max(0, Math.min(queue.length - 1, n));
+  wLeft = WSTEPS[queue[qi]].d;
+  document.getElementById('wCircle').className = 'breath';
+  wPaint();
+  setTimeout(wPaint, 30);
+  if(WSTEPS[queue[qi]].ment) wStop();
+}
+function wTick(){
+  wLeft--;
+  if(wLeft <= 0){
+    if(qi >= queue.length - 1){ finishRun(); return; }
+    wGo(qi + 1); return;
+  }
+  document.getElementById('wCount').textContent = wLeft + '초';
+}
+function finishRun(){
+  wStop();
+  if(curCat === 'all'){ WCATS.forEach(function(c){ wDone[c.id] = true; }); }
+  else wDone[curCat] = true;
+  document.getElementById('wTitle').textContent = '잘했어요!';
+  document.getElementById('wSub').innerHTML = '<div class="w-say">이제 목소리가 훨씬 편해졌을 거예요.</div>';
+  document.getElementById('wCount').textContent = '';
+  document.getElementById('wFill').style.width = '100%';
+  document.getElementById('wCircle').textContent = '완료';
+  document.getElementById('wCircle').className = 'breath';
+  setTimeout(backMenu, 1600);
+}
+function wStart(){
+  if(wIv) return;
+  if(WSTEPS[queue[qi]].ment) return;
+  wRun = true; document.getElementById('wMain').textContent = '일시정지';
+  wIv = setInterval(wTick, 1000);
+}
+function wStop(){
+  clearInterval(wIv); wIv = null; wRun = false;
+  var m = document.getElementById('wMain'); if(m) m.textContent = '시작';
+}
+function warmToggle(){ if(wRun) wStop(); else wStart(); }
+function warmSkip(){
+  wStop();
+  if(qi >= queue.length - 1){ finishRun(); return; }
+  wGo(qi + 1); wStart();
+}
+function showRun(){
+  document.getElementById('wMenu').style.display = 'none';
+  document.getElementById('wRunView').style.display = 'block';
+}
+function backMenu(){
+  wStop();
+  document.getElementById('wRunView').style.display = 'none';
+  document.getElementById('wMenu').style.display = 'block';
+  buildGrid();
+}
+function runCat(id){
+  curCat = id; queue = [];
+  WSTEPS.forEach(function(s, n){ if(s.cat === id) queue.push(n); });
+  showRun(); wGo(0);
+  if(id !== 'mt') wStart();
+}
+function runAll(){
+  curCat = 'all'; queue = WSTEPS.map(function(s, n){ return n; });
+  showRun(); wGo(0); wStart();
+}
+function openWarm(){
+  document.getElementById('wmodal').classList.add('on');
+  backMenu();
+}
+function closeWarm(){ wStop(); document.getElementById('wmodal').classList.remove('on'); }
+
+/* ---------- 1-minute stopwatch ---------- */
+function createTimer(box){
+  var timeEl = box.querySelector('.t-time'), fill = box.querySelector('.t-fill'),
+      msg = box.querySelector('.t-msg'), bMain = box.querySelector('.tb-main'),
+      bSub = box.querySelector('.tb-sub');
+  var t0 = 0, acc = 0, iv = null;
+  function fmt(ms){
+    var s = ms/1000, m = Math.floor(s/60), r = s - m*60;
+    return m + ':' + (r<10?'0':'') + r.toFixed(1);
+  }
+  function paint(ms){
+    timeEl.textContent = fmt(ms);
+    var pct = Math.min(100, ms/600); /* 60000ms -> 100% */
+    fill.style.width = pct + '%';
+    var over = ms >= 60000;
+    box.classList.toggle('over', over);
+    if(over && !box.dataset.said){ msg.textContent = '1분이 지났어요 — 여기까지가 딱 좋은 길이!'; box.dataset.said = '1'; }
+  }
+  function tick(){ paint(acc + (Date.now() - t0)); }
+  bMain.addEventListener('click', function(){
+    if(iv){ clearInterval(iv); iv = null; acc += Date.now() - t0; bMain.textContent = '시작'; }
+    else { t0 = Date.now(); iv = setInterval(tick, 100); bMain.textContent = '정지'; msg.textContent = ''; }
+  });
+  bSub.addEventListener('click', function(){
+    clearInterval(iv); iv = null; acc = 0; delete box.dataset.said;
+    bMain.textContent = '시작'; msg.textContent = '';
+    box.classList.remove('over'); paint(0);
+  });
+  paint(0);
+}
+document.querySelectorAll('.timerbox').forEach(createTimer);
+
+/* ---------- print (auto-expand textareas so full text prints) ---------- */
+function doPrint(){
+  var tas = document.querySelectorAll('textarea');
+  tas.forEach(function(t){ t.dataset.oh = t.style.height || ''; t.style.height = 'auto'; t.style.height = Math.max(t.scrollHeight, 88) + 'px'; });
+  window.print();
+  setTimeout(function(){
+    tas.forEach(function(t){ t.style.height = t.dataset.oh; });
+    document.body.classList.remove('p-one');
+  }, 500);
+}
+function printAll(){ document.body.classList.remove('p-one'); doPrint(); }
+function printOne(){ document.body.classList.add('p-one'); doPrint(); }
+window.addEventListener('beforeprint', function(){
+  document.querySelectorAll('textarea').forEach(function(t){ t.style.height = 'auto'; t.style.height = Math.max(t.scrollHeight, 88) + 'px'; });
+});
+
+/* ---------- direct send to teacher (Formspree -> shey_love@naver.com) ---------- */
+var FORM_ENDPOINT = 'https://formspree.io/f/xgopkjkg';
+function buildSummary(){ return fullText(); }
+function sendToTeacher(scope){
+  scope = scope || cur;
+  var name = (data.myname || '').trim();
+  if(!name){ alert('먼저 맨 위에 내 이름을 적어 주세요!'); go(1); return; }
+  var body, tag;
+  if(scope === 'all'){
+    if(!LABELMAP.some(function(p){ return p[1] && data[p[1]]; })){ alert('아직 보낼 내용이 없어요. 워크북을 채우고 다시 눌러 주세요.'); return; }
+    body = buildSummary(); tag = '워크북 전체';
+  } else {
+    body = sessionText(scope);
+    if(!body){ alert('이 회차에 아직 적은 내용이 없어요.'); return; }
+    tag = scope + '회차';
+  }
+  var btn = document.getElementById(scope === 'all' ? 'sendBtn' : 'abSend');
+  var label = btn.textContent;
+  btn.disabled = true; btn.textContent = '보내는 중…';
+  fetch(FORM_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      _subject: '[내가 그린 횡성] ' + tag + ' - ' + name,
+      '학생 이름': name,
+      '짝꿍': data.pairname || '',
+      '구분': tag,
+      '내용': body
+    })
+  }).then(function(res){
+    if(res.ok){
+      btn.textContent = '전송 완료!';
+      alert(tag + ' 내용이 선생님께 잘 전달되었어요!');
+      setTimeout(function(){ btn.disabled = false; btn.textContent = label; }, 3000);
+    } else { throw new Error('bad status'); }
+  }).catch(function(){
+    btn.disabled = false; btn.textContent = label;
+    if(confirm('바로 보내기가 되지 않았어요. 대신 메일 앱으로 보낼까요?')) mailFallback(name, body);
+  });
+}
+function mailFallback(name, body){
+  if(body.length > 1800) body = body.slice(0, 1800) + '\n…(뒷부분은 이미지 저장으로 보내 주세요)';
+  location.href = 'mailto:shey_love@naver.com'
+    + '?subject=' + encodeURIComponent('[내가 그린 횡성] 워크북 - ' + name)
+    + '&body=' + encodeURIComponent('안녕하세요 선생님, ' + name + ' 워크북 보냅니다.\n\n' + body);
+}
+
+/* ---------- reset ---------- */
+function resetAll(){
+  if(!confirm('정말 모든 기록을 지우고 처음부터 다시 쓸까요? 되돌릴 수 없어요.')) return;
+  data = {};
+  saveData(data);
+  location.reload();
+}
+
+/* ---------- init (after all definitions) ---------- */
+renderAllStyles();
+updateMeters();
+</script>
+</body>
+</html>
